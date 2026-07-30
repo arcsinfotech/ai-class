@@ -67,7 +67,7 @@ async def register(args: RegisterRequest):
     return {"message": "User created successfully"}
 
 @router.post("/refresh")
-async def register(args: RefreshRequest):
+async def refresh(args: RefreshRequest):
 
     payload = await decode_token(args.refresh_token)
 

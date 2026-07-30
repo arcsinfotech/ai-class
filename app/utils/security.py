@@ -1,16 +1,17 @@
 import jwt
 from fastapi import HTTPException
 from datetime import datetime, timedelta, timezone
+from app.configs.settings import settings
 
 from pwdlib import PasswordHash
 
 ph = PasswordHash.recommended()
 
-ACCESS_TOKEN_EXP = 30
-REFRES_TOKEN_EXP = 7
+ACCESS_TOKEN_EXP = settings.ACCESS_TOKEN_EXP
+REFRES_TOKEN_EXP = settings.REFRES_TOKEN_EXP
 
-SECRET_KEY = "super-secret-key"
-ALGO = "HS256"
+SECRET_KEY = settings.SECRET_KEY
+ALGO = settings.ALGO
 
 async def hash_password(password: str):
     return ph.hash(password)

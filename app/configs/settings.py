@@ -34,8 +34,10 @@ class ApplicationSettings(BaseSettings):
 
     ENV: str = 'development'
 
-    JWT_SECRET_KEY: str = ''
-    JWT_ALGORITHM: str = "HS256"
+    SECRET_KEY: str = 'super-secret-key'
+    ALGO: str = 'HS256'
+    ACCESS_TOKEN_EXP: int = 30
+    REFRES_TOKEN_EXP: int = 7
 
     DB_URL: str = ''
 

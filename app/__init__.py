@@ -7,6 +7,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 
 from app.configs import settings
 from app.routers import root_api_router
+from app.models.connection import check_database_connection, cleanup_connections
 
 log = logging.getLogger(__name__)
 
@@ -19,8 +20,12 @@ async def lifespan(app: FastAPI):
     """
     # Startup
     log.info("Execute FastAPI startup event handler.")
+
+    await check_database_connection()
     
     yield
+
+    await cleanup_connections()
 
     # ---- SHUTDOWN START ----
         

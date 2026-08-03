@@ -9,6 +9,8 @@ from app.configs import settings
 from app.routers import root_api_router
 from app.models.connection import check_database_connection, cleanup_connections
 
+from app.exception.http import GlobalExceptionMiddleware
+
 log = logging.getLogger(__name__)
 
 
@@ -49,6 +51,7 @@ def get_application() -> FastAPI:
         lifespan=lifespan
     )
 
+    app.add_middleware(GlobalExceptionMiddleware)
     app.add_middleware(GZipMiddleware, minimum_size=1000)
 
     log.debug("Add application routes.")

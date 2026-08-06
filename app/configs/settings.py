@@ -40,6 +40,7 @@ class ApplicationSettings(BaseSettings):
     REFRES_TOKEN_EXP: int = 7
 
     DB_URL: str = ''
+    REDIS_URI: str = ''
 
     API_PREFIX: str = ''
     PORT: int = 9000

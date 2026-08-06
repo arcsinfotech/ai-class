@@ -8,6 +8,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from app.configs import settings
 from app.routers import root_api_router
 from app.models.connection import check_database_connection, cleanup_connections
+from app.models.redis import connect_to_redis, close_redis_connection
 
 from app.exception.http import GlobalExceptionMiddleware
 
@@ -24,10 +25,12 @@ async def lifespan(app: FastAPI):
     log.info("Execute FastAPI startup event handler.")
 
     await check_database_connection()
-    
+    await connect_to_redis()
+
     yield
 
     await cleanup_connections()
+    await close_redis_connection()
 
     # ---- SHUTDOWN START ----
         

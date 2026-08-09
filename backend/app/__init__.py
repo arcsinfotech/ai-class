@@ -25,12 +25,12 @@ async def lifespan(app: FastAPI):
     log.info("Execute FastAPI startup event handler.")
 
     await check_database_connection()
-    await connect_to_redis()
+    # await connect_to_redis()
 
     yield
 
     await cleanup_connections()
-    await close_redis_connection()
+    # await close_redis_connection()
 
     # ---- SHUTDOWN START ----
         

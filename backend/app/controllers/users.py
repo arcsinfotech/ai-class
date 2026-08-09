@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Query
 from app.utils.security import decode_token
 
 from app.models.users import Users
@@ -8,7 +8,7 @@ from sqlalchemy import select
 router = APIRouter()
 
 @router.get("/users")
-async def get_users(request: Request):
+async def get_users(request: Request, offset: int = Query(default=0, ge=0), limit: int = Query(default=10, ge=1, le=10)):
 
     access_token = request.headers.get("Authorization")
 
@@ -21,7 +21,7 @@ async def get_users(request: Request):
         raise HTTPException(403, "Forbidden")
     
     async with get_async_db() as db:
-        result = await db.execute(select(Users))
+        result = await db.execute(select(Users).offset(offset).limit(limit))
         users = result.scalars().all()
 
     formated_users = []    
@@ -37,4 +37,4 @@ async def get_users(request: Request):
         })
 
 
-    return {"users": users}
+    return {"users": users, "offset": offset, "limit": limit}

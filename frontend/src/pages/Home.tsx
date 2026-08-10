@@ -1,15 +1,8 @@
 import { useAuth } from "../context/AuthProvider"
-import { useNavigate } from "react-router-dom"
 
 export default function Home() {
   
   const { user, logout } = useAuth()
-  const navigate = useNavigate()
-
-  const handleLogout = () => {
-    logout()
-    navigate("/login")
-  }
 
   return (
     <div>
@@ -17,7 +10,7 @@ export default function Home() {
       <p>Email: {user?.email}</p>
       <p>Role: {user?.role}</p>
 
-      <button onClick={handleLogout}>Logout</button>
+      <button onClick={logout}>Logout</button>
     </div>
   )
 }

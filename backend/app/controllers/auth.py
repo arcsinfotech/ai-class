@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.schemas.auth import LoginRequest, RegisterRequest, RefreshRequest
+from app.schemas.auth import LoginRequest, RegisterRequest, RefreshRequest, VerifyRequest
 from app.utils.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
 from app.models.users import Users
 from app.models.connection import get_async_db
@@ -104,4 +104,36 @@ async def refresh(args: RefreshRequest):
         }
     )
         
-    return {"access_token": access_token}
+    return {
+        "access_token": access_token,
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role
+        }    
+    }
+
+@router.post("/verify")
+async def verify(args: VerifyRequest):
+
+    payload = await decode_token(args.access_token)
+
+    if payload["type"] != "access":
+        raise HTTPException(401, "Invalid token")
+    
+    email = payload["sub"]
+
+    async with get_async_db() as db:
+        user = await get_user_by_email(db, email)
+        if not user:
+            raise HTTPException(401, "Invalid token")
+    
+    return {
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role
+        }
+    }

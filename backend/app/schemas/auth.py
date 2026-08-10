@@ -12,3 +12,6 @@ class RegisterRequest(BaseModel):
 
 class RefreshRequest(BaseModel):
     refresh_token: str
+
+class VerifyRequest(BaseModel):
+    access_token: str

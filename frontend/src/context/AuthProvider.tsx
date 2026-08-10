@@ -9,6 +9,7 @@ interface User {
 
 interface AuthContextType {
     user: User | null
+    isAuthenticated: boolean
     isLoading: boolean
     setSession: (session: {user: User, accessToken: string, refreshToken: string}) => void
     logout: () => void
@@ -39,9 +40,85 @@ export default function AuthProvider({children}: { children: React.ReactNode }) 
         setUser(null)
     }
 
+    const verifyToken = async (token: string) => {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/verify`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                access_token: token
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data?.message || "Failed to verify session")
+        }
+
+        return data as { user: User }
+    }
+
+    const refreshSession = async () => {
+        const refreshToken = localStorage.getItem("refreshToken")
+
+        if (!refreshToken) {
+            logout()
+            return false
+        }
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/refresh`, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                refresh_token: refreshToken
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            logout()
+            return false
+        }
+
+        if (data?.access_token) {
+            localStorage.setItem("accessToken", data.access_token)
+        }
+
+        setUser(data.user ?? null);
+        return Boolean(data.user);
+    }
+
+    useEffect(() => {
+        const bootstrapSession = async () => {
+            const accessToken = localStorage.getItem("accessToken");
+
+            if (!accessToken) {
+                setIsLoading(false)
+                return;
+            }
+
+            try {
+                const result = await verifyToken(accessToken);
+                setUser(result.user);
+            } catch {
+                await refreshSession();
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        void bootstrapSession();
+    }, []);
+
     const value = useMemo(
         () => ({
             user,
+            isAuthenticated: Boolean(user),
             isLoading,
             setSession,
             logout,

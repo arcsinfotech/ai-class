@@ -9,9 +9,3 @@ class RegisterRequest(BaseModel):
     username: str
     password: str
     role: str
-
-class RefreshRequest(BaseModel):
-    refresh_token: str
-
-class VerifyRequest(BaseModel):
-    access_token: str

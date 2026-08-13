@@ -25,30 +25,33 @@ export default function AuthProvider({children}: { children: React.ReactNode }) 
     const setSession = ({user, accessToken, refreshToken}: {user: User , accessToken: string, refreshToken: string}) => {
 
         if(accessToken) {
-            localStorage.setItem("accessToken", accessToken)
+            document.cookie = `access_token=${accessToken}; path=/`
         }
         if(refreshToken) {
-            localStorage.setItem("refreshToken", refreshToken)
+            document.cookie = `refresh_token=${refreshToken}; path=/`
         }
 
         setUser(user)
     };
 
-    const logout = () => {
-        localStorage.removeItem("accessToken")
-        localStorage.removeItem("refreshToken")
+    const logout = async () => {
+        
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/logout`, {
+            method: "GET",
+            credentials: "include",
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to logout")
+        }
+
         setUser(null)
     }
 
-    const verifyToken = async (token: string) => {
+    const verifyToken = async () => {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/verify`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                access_token: token
-            })
+            credentials: "include",
         });
 
         const data = await response.json();
@@ -61,21 +64,13 @@ export default function AuthProvider({children}: { children: React.ReactNode }) 
     }
 
     const refreshSession = async () => {
-        const refreshToken = localStorage.getItem("refreshToken")
-
-        if (!refreshToken) {
-            logout()
-            return false
-        }
 
         const response = await fetch(`${import.meta.env.VITE_API_URL}/refresh`, {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
+                "credentials": "include",
             },
-            body: JSON.stringify({
-                refresh_token: refreshToken
-            })
         });
 
         const data = await response.json();
@@ -85,25 +80,15 @@ export default function AuthProvider({children}: { children: React.ReactNode }) 
             return false
         }
 
-        if (data?.access_token) {
-            localStorage.setItem("accessToken", data.access_token)
-        }
-
         setUser(data.user ?? null);
         return Boolean(data.user);
     }
 
     useEffect(() => {
         const bootstrapSession = async () => {
-            const accessToken = localStorage.getItem("accessToken");
-
-            if (!accessToken) {
-                setIsLoading(false)
-                return;
-            }
 
             try {
-                const result = await verifyToken(accessToken);
+                const result = await verifyToken();
                 setUser(result.user);
             } catch {
                 await refreshSession();
@@ -121,9 +106,10 @@ export default function AuthProvider({children}: { children: React.ReactNode }) 
             isAuthenticated: Boolean(user),
             isLoading,
             setSession,
+            refreshSession,
             logout,
         }),
-        [user, isLoading, setSession, logout]
+        [user, isLoading, setSession, logout, refreshSession]
     )
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

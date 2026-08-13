@@ -52,6 +52,10 @@ export default function Login() {
         
 
     }
+
+    const loginWithGithub = () => {
+        window.location.href = `${import.meta.env.VITE_API_URL}/auth/github`
+    }
   
     return (
         <form onSubmit={handleLogin}>
@@ -78,8 +82,10 @@ export default function Login() {
             {error ? <p>{error}</p> : null}
 
             <button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Submitting..." : "Submit"} 
+                {isSubmitting ? "Logging in..." : "Login"} 
             </button>
+            
+            <button type="button" onClick={loginWithGithub}>Login with Github</button>
         </form>
   )
 }

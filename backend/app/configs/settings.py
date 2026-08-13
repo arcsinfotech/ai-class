@@ -42,7 +42,12 @@ class ApplicationSettings(BaseSettings):
     DB_URL: str = ''
     REDIS_URI: str = ''
 
+    GITHUB_CLIENT_ID: str = ''
+    GITHUB_CLIENT_SECRET: str = ''
+    GITHUB_REDIRECT_URI: str =  'http://localhost:9000/auth/github/callback'
+
     API_PREFIX: str = ''
     PORT: int = 9000
+    FRONTEND_URL: str = 'http://localhost:5173'
 
 settings = ApplicationSettings()

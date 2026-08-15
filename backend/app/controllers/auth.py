@@ -50,8 +50,6 @@ async def login(args: LoginRequest):
 
     response = JSONResponse({
         "message": "Login successfully",
-        "access_token": access_token,
-        "refresh_token": refresh_token,
         "user": {
             "id": user.id,
             "username": user.username,

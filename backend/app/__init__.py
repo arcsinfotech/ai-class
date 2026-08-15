@@ -8,7 +8,8 @@ from fastapi.middleware.gzip import GZipMiddleware
 from app.configs import settings
 from app.routers import root_api_router
 from app.models.connection import check_database_connection, cleanup_connections
-from app.models.redis import connect_to_redis, close_redis_connection
+# from app.models.redis import connect_to_redis, close_redis_connection
+from app.models.supabase_client import init_supabase, check_supabase_connection
 
 from app.exception.http import GlobalExceptionMiddleware
 
@@ -26,6 +27,8 @@ async def lifespan(app: FastAPI):
 
     await check_database_connection()
     # await connect_to_redis()
+    await init_supabase()
+    await check_supabase_connection()
 
     yield
 

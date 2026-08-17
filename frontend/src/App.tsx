@@ -14,6 +14,8 @@ import PublicRoute from './utils/PublicRoute'
 import Users from './pages/Users'
 import Uploads from './pages/Uploads'
 import Uploads2 from './pages/Uploads2'
+import Ws from './pages/Ws'
+import Sse from './pages/Sse'
 
 function App() {
 
@@ -28,6 +30,8 @@ function App() {
             <Route path="/users" element={<Users />} />
             <Route path="/upload" element={<Uploads />} />
             <Route path="/upload2" element={<Uploads2 />} />
+            <Route path="/ws" element={<Ws />} />
+            <Route path="/sse" element={<Sse />} />
           </Route>
 
           <Route element={<PublicRoute />}>

@@ -1,28 +1,26 @@
+import json
 import asyncio
 from fastapi import APIRouter
 from sse_starlette.sse import EventSourceResponse
+from app.schemas.sse import SseRequest
 
 router = APIRouter()
 
-async def get_message():
-    return "Hello, World!"
-
-async def get_streaming_messages():
-
-    yield {"data": "This is a test message"}
-    await asyncio.sleep(5)    
-    yield {"data": "This is the final message 2"}
-
-
-@router.get("/sse")
-async def sse():
+@router.post("/sse")
+async def sse(args: SseRequest):
 
     async def stream():
-        message = await get_message()
-        yield f"data: {message}"
-        
-        async for chunk in get_streaming_messages():
-            yield {"data": chunk}
 
+        question = args.question
+
+        # here we will implement AI part later
+
+        answer = "Hello there! How can I help you today? I am a chatbot created by the team at AI.com to help you with your questions. Is there anything specific you would like to know?"        
+
+        for word in answer.split(" "):
+            yield json.dumps({"data": word+" "})
+            await asyncio.sleep(0.1)
+        
+        yield json.dumps({"data": "END"})
 
     return EventSourceResponse(stream())

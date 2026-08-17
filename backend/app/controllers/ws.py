@@ -6,57 +6,32 @@ from fastapi.websockets import WebSocket
 
 router = APIRouter()
 
-SUPPORTED_DATA_TYPES = ["stocks", "options", "money", "END"]
-
-
-async def fetch_stocks_data(websocket: WebSocket):
-    
-    await websocket.send_text(json.dumps({"data": "stocks data"}))
-    await asyncio.sleep(5)
-    await websocket.send_text(json.dumps({"data": "stocks data 2"}))
-    await asyncio.sleep(5)
-    await websocket.send_text(json.dumps({"data": "stocks data 3"}))
-    await asyncio.sleep(5)
-    await websocket.send_text(json.dumps({"data": "stocks data 4"}))
-    await asyncio.sleep(5)
-
-async def fetch_options_data(websocket: WebSocket):
-    await websocket.send_text(json.dumps({"data": "options data"}))
-    await asyncio.sleep(5)
-    await websocket.send_text(json.dumps({"data": "options data 2"}))
-    await asyncio.sleep(5)
-    await websocket.send_text(json.dumps({"data": "options data 3"}))
-    await asyncio.sleep(5)
-    await websocket.send_text(json.dumps({"data": "options data 4"}))
-    await asyncio.sleep(5)
-
 @router.websocket("/ws")
 async def websocket(websocket: WebSocket):
     await websocket.accept()
 
-    while True:
+    try:
 
-        payload = await websocket.receive_text()
+        while True:
 
-        json_payload = json.loads(payload)
+            payload = await websocket.receive_text()
 
-        type_of_data = json_payload.get("type_of_data")
+            json_payload = json.loads(payload)
 
-        if type_of_data not in SUPPORTED_DATA_TYPES:
-            await websocket.send_text(json.dumps({"error": "Invalid data type"}))
-            continue
+            question = json_payload.get("question")
 
-        if type_of_data == "stocks":
-            await websocket.send_text(json.dumps({"data": "successfully joined the stocks channel"}))
-            await fetch_stocks_data(websocket)
-            continue
+            # Here we will implement AI part later
 
-        if type_of_data == "options":
-            await websocket.send_text(json.dumps({"data": "successfully joined the  options channel"}))
-            await fetch_options_data(websocket)
-            continue
+            answer = "Hello there! How can I help you today? I am a chatbot created by the team at AI.com to help you with your questions. Is there anything specific you would like to know?"        
 
-        if type_of_data == "END":
-            await websocket.close()
+            for word in answer.split(" "):
+                await websocket.send_text(json.dumps({"data": word+" "}))
+                await asyncio.sleep(0.1)
+
+            await websocket.send_text(json.dumps({"data": "END"}))
             break
-
+    
+    except Exception as e:
+        print(f"Eror: {e}")
+    finally:
+        await websocket.close()

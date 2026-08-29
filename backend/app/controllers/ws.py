@@ -3,6 +3,7 @@ import json
 
 from fastapi import APIRouter
 from fastapi.websockets import WebSocket
+from app.utils.rag import generater_response
 
 router = APIRouter()
 
@@ -20,13 +21,8 @@ async def websocket(websocket: WebSocket):
 
             question = json_payload.get("question")
 
-            # Here we will implement AI part later
-
-            answer = "Hello there! How can I help you today? I am a chatbot created by the team at AI.com to help you with your questions. Is there anything specific you would like to know?"        
-
-            for word in answer.split(" "):
-                await websocket.send_text(json.dumps({"data": word+" "}))
-                await asyncio.sleep(0.1)
+            async for chunk in generater_response(question):
+                await websocket.send_text(json.dumps({"data": chunk}))
 
             await websocket.send_text(json.dumps({"data": "END"}))
             break

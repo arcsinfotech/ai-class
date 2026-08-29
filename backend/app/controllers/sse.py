@@ -3,6 +3,8 @@ import asyncio
 from fastapi import APIRouter
 from sse_starlette.sse import EventSourceResponse
 from app.schemas.sse import SseRequest
+from app.utils.rag import generater_response
+
 
 router = APIRouter()
 
@@ -13,13 +15,8 @@ async def sse(args: SseRequest):
 
         question = args.question
 
-        # here we will implement AI part later
-
-        answer = "Hello there! How can I help you today? I am a chatbot created by the team at AI.com to help you with your questions. Is there anything specific you would like to know?"        
-
-        for word in answer.split(" "):
-            yield json.dumps({"data": word+" "})
-            await asyncio.sleep(0.1)
+        async for chunk in generater_response(question):
+            yield json.dumps({"data": chunk})
         
         yield json.dumps({"data": "END"})
 
